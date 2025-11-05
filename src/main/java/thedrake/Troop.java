@@ -1,6 +1,5 @@
 package thedrake;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Troop {

@@ -1,7 +1,5 @@
 package thedrake;
 
-import java.util.Optional;
-
 public class GameState {
     private final Board board;
     private final PlayingSide sideOnTurn;
@@ -60,9 +58,6 @@ public class GameState {
         return blueArmy;
     }
 
-    // Vrátí dlaždici, která se nachází na hrací desce na pozici pos.
-    // Musí tedy zkontrolovat, jestli na této pozici není jednotka z
-    // armády nějakého hráče a pokud ne, vrátí dlaždici z objektu board
     public Tile tileAt(TilePos pos) {
         BoardTile bt = board.at(pos);
         if(blueArmy.boardTroops().at(pos).isPresent())
@@ -76,44 +71,31 @@ public class GameState {
         return board.at(pos);
     }
 
-    // Vrátí true, pokud je možné ze zadané pozice začít tah nějakou
-    // jednotkou. Vrací false, pokud stav hry není IN_PLAY, pokud
-    // na dané pozici nestojí žádná jednotka nebo pokud na pozici
-    // stojí jednotka hráče, který zrovna není na tahu.
-    // Při implementaci vemte v úvahu zahájení hry. Dokud nejsou
-    // postaveny stráže, žádné pohyby jednotek po desce nejsou možné.
     private boolean canStepFrom(TilePos origin) {
-        if(GameResult.IN_PLAY == result)
-        {
-            Tile tile = tileAt(origin);
-            if(tile.hasTroop())
-            {
-                if(!orangeArmy.boardTroops().isPlacingGuards() || orangeArmy.boardTroops().isLeaderPlaced()||blueArmy.boardTroops().isPlacingGuards() || !blueArmy.boardTroops().isLeaderPlaced())
-                {
-                    if(armyOnTurn()==blueArmy && blueArmy.boardTroops().at(origin).isPresent())
-                    {
-                        return true;
-                    }
-                    else if(armyOnTurn()==orangeArmy && orangeArmy.boardTroops().at(origin).isPresent())
-                    {
-                        return true;
-                    }
-                }
-            }
+        if(GameResult.IN_PLAY != result) {
+            return false;
+        }
+        if(orangeArmy.boardTroops().isPlacingGuards() || !orangeArmy.boardTroops().isLeaderPlaced()||
+                blueArmy.boardTroops().isPlacingGuards() || !blueArmy.boardTroops().isLeaderPlaced()
+        ){
+            return false;
+        }
+        if(armyOnTurn()==blueArmy && blueArmy.boardTroops().at(origin).isPresent()) {
+            return true;
+        }
+        else if(armyOnTurn()==orangeArmy && orangeArmy.boardTroops().at(origin).isPresent()) {
+            return true;
         }
         return false;
     }
 
-    // Vrátí true, pokud je možné na zadanou pozici dokončit tah nějakou
-    // jednotkou. Vrací false, pokud stav hry není IN_PLAY nebo pokud
-    // na zadanou dlaždici nelze vstoupit (metoda Tile.canStepOn).
     private boolean canStepTo(TilePos target) {
+        if(target == TilePos.OFF_BOARD){
+            return false;
+        }
         return (result== GameResult.IN_PLAY && tileAt(target).canStepOn());
     }
 
-    // Vrátí true, pokud je možné na zadané pozici vyhodit soupeřovu jednotku.
-    // Vrací false, pokud stav hry není IN_PLAY nebo pokud
-    // na zadané pozici nestojí jednotka hráče, který zrovna není na tahu.
     private boolean canCaptureOn(TilePos target) {
         if(result != GameResult.IN_PLAY) {
             return false;
@@ -132,7 +114,6 @@ public class GameState {
         return true;
     }
 
-
     public boolean canStep(TilePos origin, TilePos target) {
         return canStepFrom(origin) && canStepTo(target);
     }
@@ -141,19 +122,46 @@ public class GameState {
         return canStepFrom(origin) && canCaptureOn(target);
     }
 
-    // Vrátí true, pokud je možné na zadanou pozici položit jednotku ze
-    // zásobníku.. Vrací false, pokud stav hry není IN_PLAY, pokud je zásobník
-    // armády, která je zrovna na tahu prázdný, pokud není možné na danou
-    // dlaždici vstoupit. Při implementaci vemte v úvahu zahájení hry, kdy
-    // se vkládání jednotek řídí jinými pravidly než ve střední hře.
     public boolean canPlaceFromStack(TilePos target) {
-        if(result == GameResult.IN_PLAY){
-            if(!armyOnTurn().stack().isEmpty()) {
-                if(canStepTo(target)) {
-                    return true;
-                }
+        if(result != GameResult.IN_PLAY){
+            return false;
+        }
+        if(target ==  TilePos.OFF_BOARD){
+            return false;
+        }
+        if(armyOnTurn().stack().isEmpty()) {
+            return false;
+        }
+        if (!tileAt(target).canStepOn()) {
+            return false;
+        }
+
+        //leader must be on upper edge or lower edge of board
+        if(armyOnTurn() == blueArmy)
+        {
+            if(!armyOnTurn().boardTroops().isLeaderPlaced()){
+                return target.j()==0;
             }
         }
+        if(armyOnTurn() == orangeArmy)
+        {
+            if(!armyOnTurn().boardTroops().isLeaderPlaced()){
+                return target.j()==board.dimension()-1;
+            }
+        }
+
+        //guards must be near leader
+        if(armyOnTurn().boardTroops().isPlacingGuards()) {
+            return armyOnTurn().boardTroops().leaderPosition().isNextTo(target);
+        }
+
+        //any new piece must be near other friendly piece
+        for(BoardPos friendlyPos : armyOnTurn().boardTroops().troopPositions()) {
+            if(target.isNextTo(friendlyPos)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
