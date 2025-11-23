@@ -1,9 +1,10 @@
 package thedrake;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoardPos implements TilePos {
+public class BoardPos implements TilePos, JSONSerializable {
     private final int dimension;
     private final int i;
     private final int j;
@@ -127,5 +128,10 @@ public class BoardPos implements TilePos {
     @Override
     public String toString() {
         return String.format("%c%d", column(), row());
+    }
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.printf("\"%s\"", this.toString());
     }
 }

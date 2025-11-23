@@ -1,9 +1,10 @@
 package thedrake;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TroopTile implements Tile {
+public class TroopTile implements Tile, JSONSerializable {
 
     Troop troop;
     PlayingSide side;
@@ -73,4 +74,21 @@ public class TroopTile implements Tile {
         }
         return moves;
     }
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{");
+
+        writer.print("\"troop\":");
+        troop.toJSON(writer);
+
+        writer.print(",\"side\":");
+        side.toJSON(writer);
+
+        writer.print(",\"face\":");
+        face.toJSON(writer);
+
+        writer.print("}");
+    }
+
 }

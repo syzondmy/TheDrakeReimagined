@@ -1,13 +1,15 @@
 package thedrake;
 
-public class GameState {
+import java.io.PrintWriter;
+
+public class GameState implements JSONSerializable {
     private final Board board;
     private final PlayingSide sideOnTurn;
     private final Army blueArmy;
     private final Army orangeArmy;
     private final GameResult result;
 
-    public GameState(
+    public GameState (
             Board board,
             Army blueArmy,
             Army orangeArmy) {
@@ -238,4 +240,40 @@ public class GameState {
 
         return new GameState(board, armyNotOnTurn, armyOnTurn, PlayingSide.ORANGE, result);
     }
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{");
+
+        //GAME RESULT
+        writer.print("\"result\":");
+        result.toJSON(writer);
+        writer.print(",");
+
+        //BOARD
+        writer.print("\"board\":");
+        board.toJSON(writer);
+        writer.print(",");
+
+//        //PLAYING SIDE
+//        writer.print("\"sideOnTurn\":");
+//        sideOnTurn.toJSON(writer);
+//        writer.print(",");
+
+        //BLUE
+        writer.print("\"blueArmy\":");
+        blueArmy.skipSide = true;
+        blueArmy.boardTroops().toogleNaming();
+        blueArmy.toJSON(writer);
+        writer.print(",");
+
+        //ORANGE
+        writer.print("\"orangeArmy\":");
+        orangeArmy.skipSide = true;
+        //orangeArmy.boardTroops().toogleNaming();
+        orangeArmy.toJSON(writer);
+
+        writer.print("}");
+    }
+
 }

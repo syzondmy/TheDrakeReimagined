@@ -1,6 +1,8 @@
 package thedrake;
 
-public class Board {
+import java.io.PrintWriter;
+
+public class Board implements JSONSerializable {
 
     private final BoardTile [][] boardTiles;
     private final int dimension;
@@ -56,5 +58,31 @@ public class Board {
             this.tile = tile;
         }
     }
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{");
+
+        //DIMENSION
+        writer.print("\"dimension\":");
+        writer.print(dimension);
+        writer.print(",");
+
+        //TILES
+        writer.print("\"tiles\":[");
+        boolean first = true;
+        for (int j = 0; j < dimension; j++) { // row-major order
+            for (int i = 0; i < dimension; i++) {
+                if (!first) writer.print(",");
+                first = false;
+                boardTiles[i][j].toJSON(writer);
+            }
+        }
+        writer.print("]");
+
+        writer.print("}");
+    }
+
+
 }
 

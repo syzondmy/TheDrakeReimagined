@@ -1,10 +1,11 @@
 package thedrake;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Army {
+public class Army implements JSONSerializable{
     private final BoardTroops boardTroops;
     private final List<Troop> stack;
     private final List<Troop> captured;
@@ -78,4 +79,46 @@ public class Army {
 
         return new Army(boardTroops, stack, newCaptured);
     }
+
+    public boolean skipSide = false;
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{");
+
+        //PLAYING SIDE
+        if (skipSide == true){}
+        else{
+            writer.print("\"side\":");
+            side().toJSON(writer);
+            writer.print(",");
+        }
+        skipSide = false;
+
+        //TROOPS
+        writer.print("\"boardTroops\":");
+        //boardTroops.toogleNaming();
+        //boardTroops.toogleSort();
+        boardTroops.toJSON(writer);
+        writer.print(",");
+
+        //STACK
+        writer.print("\"stack\":[");
+        for (int i = 0; i < stack.size(); i++) {
+            if (i > 0) writer.print(",");
+            stack.get(i).toJSON(writer);
+        }
+        writer.print("],");
+
+        //CAPUTURED
+        writer.print("\"captured\":[");
+        for (int i = 0; i < captured.size(); i++) {
+            if (i > 0) writer.print(",");
+            captured.get(i).toJSON(writer);
+        }
+        writer.print("]");
+
+        writer.print("}");
+    }
+
 }

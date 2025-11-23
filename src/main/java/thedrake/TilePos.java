@@ -1,8 +1,9 @@
 package thedrake;
 
+import java.io.PrintWriter;
 import java.util.List;
 
-public interface TilePos {
+public interface TilePos extends JSONSerializable {
     public static final TilePos OFF_BOARD = new TilePos() {
 
         @Override
@@ -59,6 +60,11 @@ public interface TilePos {
         public String toString() {
             return "off-board";
         }
+
+        @Override
+        public void toJSON(PrintWriter writer) {
+            writer.printf("null");
+        }
     };
 
     public int i();
@@ -80,4 +86,7 @@ public interface TilePos {
     public TilePos stepByPlayingSide(Offset2D dir, PlayingSide side);
 
     public boolean equalsTo(int i, int j);
+
+    @Override
+    void toJSON(PrintWriter writer);
 }

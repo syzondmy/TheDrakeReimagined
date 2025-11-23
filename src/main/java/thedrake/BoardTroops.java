@@ -1,8 +1,9 @@
 package thedrake;
 
+import java.io.PrintWriter;
 import java.util.*;
 
-public class BoardTroops {
+public class BoardTroops implements JSONSerializable{
     private final PlayingSide playingSide;
     private final Map<BoardPos, TroopTile> troopMap;
     private final TilePos leaderPosition;
@@ -150,5 +151,74 @@ public class BoardTroops {
         newTM.remove(target);
 
         return new BoardTroops(playingSide, newTM, (target.equalsTo(leaderPosition().i(), leaderPosition.j()))?TilePos.OFF_BOARD:leaderPosition, guards);
+    }
+
+    boolean diferentNaming = true;
+    boolean sortBeforePrint = true;
+
+
+    public void toogleNaming()
+    {
+        diferentNaming = !diferentNaming;
+    }
+
+    public  void toogleSort()
+    {
+        diferentNaming = !diferentNaming;
+    }
+
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{");
+
+        //PLAYING SIDE
+        writer.print("\"side\":");
+        playingSide.toJSON(writer);
+        writer.print(",");
+
+        //DRAKE
+        writer.print("\"leaderPosition\":");
+        if (leaderPosition.equals(TilePos.OFF_BOARD)) {
+            writer.print("\"off-board\"");
+        } else {
+            leaderPosition.toJSON(writer);
+        }
+        writer.print(",");
+
+        //GUARDS
+        writer.print("\"guards\":");
+        writer.print(guards);
+        writer.print(",");
+
+
+        List<BoardPos> keys = new ArrayList<>(troopMap.keySet());
+        //TROPS
+        if(diferentNaming) {
+            writer.print("\"troopMap\":{");
+        }
+        else {
+            writer.print("\"troops\":{");
+        }
+        diferentNaming = false;
+        if(sortBeforePrint) {
+            keys.sort(Comparator.comparing(BoardPos::toString));
+        }
+        sortBeforePrint = false;
+
+        boolean first = true;
+        for (BoardPos pos : keys) {
+            TroopTile tile = troopMap.get(pos);
+
+            if (!first) writer.print(",");
+            first = false;
+
+            writer.printf("\"%s\":", pos.toString());
+            tile.toJSON(writer);
+        }
+
+        writer.print("}");
+
+        writer.print("}");
     }
 }
