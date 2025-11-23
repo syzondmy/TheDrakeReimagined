@@ -80,20 +80,19 @@ public class Army implements JSONSerializable{
         return new Army(boardTroops, stack, newCaptured);
     }
 
-    public boolean skipSide = false;
+    public boolean skipSide = true;
 
     @Override
     public void toJSON(PrintWriter writer) {
         writer.print("{");
 
         //PLAYING SIDE
-        if (skipSide == true){}
-        else{
+        if (skipSide == false){
             writer.print("\"side\":");
             side().toJSON(writer);
             writer.print(",");
         }
-        skipSide = false;
+        skipSide = true;
 
         //TROOPS
         writer.print("\"boardTroops\":");

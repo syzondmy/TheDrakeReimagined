@@ -263,7 +263,8 @@ public class GameState implements JSONSerializable {
         //BLUE
         writer.print("\"blueArmy\":");
         blueArmy.skipSide = true;
-        blueArmy.boardTroops().toogleNaming();
+        //blueArmy.boardTroops().toogleNaming();
+        //blueArmy.boardTroops().toogleSort();
         blueArmy.toJSON(writer);
         writer.print(",");
 
@@ -271,6 +272,7 @@ public class GameState implements JSONSerializable {
         writer.print("\"orangeArmy\":");
         orangeArmy.skipSide = true;
         //orangeArmy.boardTroops().toogleNaming();
+        //orangeArmy.boardTroops().toogleSort();
         orangeArmy.toJSON(writer);
 
         writer.print("}");

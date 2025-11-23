@@ -159,12 +159,12 @@ public class BoardTroops implements JSONSerializable{
 
     public void toogleNaming()
     {
-        diferentNaming = !diferentNaming;
+        diferentNaming = false;//!diferentNaming;
     }
 
     public  void toogleSort()
     {
-        diferentNaming = !diferentNaming;
+        sortBeforePrint = !sortBeforePrint;
     }
 
 
@@ -200,11 +200,11 @@ public class BoardTroops implements JSONSerializable{
         else {
             writer.print("\"troops\":{");
         }
-        diferentNaming = false;
+        diferentNaming = true;
         if(sortBeforePrint) {
             keys.sort(Comparator.comparing(BoardPos::toString));
         }
-        sortBeforePrint = false;
+        sortBeforePrint = true;
 
         boolean first = true;
         for (BoardPos pos : keys) {
